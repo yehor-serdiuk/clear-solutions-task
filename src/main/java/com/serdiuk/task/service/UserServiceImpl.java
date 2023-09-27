@@ -1,5 +1,6 @@
 package com.serdiuk.task.service;
 
+import com.serdiuk.task.config.AppProperties;
 import com.serdiuk.task.model.User;
 import com.serdiuk.task.model.dto.UserCreateDTO;
 import com.serdiuk.task.model.dto.UserResponseDTO;
@@ -12,6 +13,8 @@ import com.serdiuk.task.service.exception.DateParameterException;
 import com.serdiuk.task.service.exception.UserNotFoundException;
 import com.serdiuk.task.service.exception.UserTooYoungException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -22,6 +25,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private final AppProperties appProperties;
     private final UserRepository userRepository;
     private final UserCreateMapper userCreateMapper = UserCreateMapper.INSTANCE;
     private final UserUpdateMapper userUpdateMapper = UserUpdateMapper.INSTANCE;
@@ -30,7 +34,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDTO create(UserCreateDTO userDTO) {
         LocalDate birthDate = userDTO.getBirthDate().toLocalDate();
         LocalDate now = LocalDate.now();
-        if (Period.between(birthDate, now).getYears() < 18) {
+        if (Period.between(birthDate, now).getYears() < appProperties.getAge()) {
             throw new UserTooYoungException("The user is too young");
         }
         User user = userRepository.save(userCreateMapper.userDTOToUser(userDTO));

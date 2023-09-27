@@ -1,5 +1,6 @@
 package com.serdiuk.task.service;
 
+import com.serdiuk.task.config.AppProperties;
 import com.serdiuk.task.model.User;
 import com.serdiuk.task.model.dto.UserCreateDTO;
 import com.serdiuk.task.model.dto.UserResponseDTO;
@@ -19,6 +20,12 @@ import org.mapstruct.control.MappingControl;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.Date;
 import java.util.Optional;
@@ -36,6 +43,8 @@ class UserServiceImplTest {
     
     User underAge;
     UserCreateDTO underAgeDTO;
+    @Mock
+    AppProperties appProperties;
     @Mock
     UserRepository userRepository;
     @InjectMocks
@@ -73,6 +82,8 @@ class UserServiceImplTest {
 
     @Test
     void create_whenUnderAgeUser_throwsUserTooYoungException() {
+        when(appProperties.getAge())
+                .thenReturn(18);
         assertThrows(UserTooYoungException.class,
                 () -> userService.create(underAgeDTO));
     }
